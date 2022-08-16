@@ -1,5 +1,6 @@
 package com.assignmentloudlytetrislist;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +14,7 @@ import com.assignmentloudlytetrislist.data.RepositoryData;
 import com.assignmentloudlytetrislist.retrofit.RetrofitClient;
 import com.assignmentloudlytetrislist.retrofit.RetrofitInterface;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -57,14 +59,27 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.dismiss();
                 APIResponse apiResponse = response.body();
                 repositoryDataList = apiResponse.getRepositoryDataList();
-                customAdapter = new CustomAdapter(getApplicationContext(), repositoryDataList);
-                recyclerView.setAdapter(customAdapter);
+                if(!repositoryDataList.isEmpty()) {
+                    customAdapter = new CustomAdapter(getApplicationContext(), repositoryDataList);
+                    recyclerView.setAdapter(customAdapter);
+                }
 
             }
 
             @Override
             public void onFailure(Call<APIResponse> call, Throwable t) {
                 progressDialog.dismiss();
+                if(t instanceof IOException) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage("Please check your network, and please try again")
+                            .setTitle("Alert")
+                            .show();
+                } else {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage("Something went wrong, and please try again")
+                            .setTitle("Alert")
+                            .show();
+                }
             }
         });
     }
